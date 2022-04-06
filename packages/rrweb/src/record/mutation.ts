@@ -328,8 +328,8 @@ export default class MutationBuffer {
 
     for (const n of this.movedSet) {
       if (
-        isParentRemoved(this.removes, n, this.mirror) &&
-        !this.movedSet.has(n.parentNode!)
+        isParentRemoved(this.removes, n, this.mirror) && // 从父元素删除掉
+        !this.movedSet.has(n.parentNode!) // 移动的组里不存在
       ) {
         continue;
       }
@@ -338,8 +338,8 @@ export default class MutationBuffer {
 
     for (const n of this.addedSet) {
       if (
-        !isAncestorInSet(this.droppedSet, n) &&
-        !isParentRemoved(this.removes, n, this.mirror)
+        !isAncestorInSet(this.droppedSet, n) && // n的父节点不在祖宗组
+        !isParentRemoved(this.removes, n, this.mirror) // 父元素没有删除
       ) {
         pushAdd(n);
       } else if (isAncestorInSet(this.movedSet, n)) {
@@ -433,6 +433,11 @@ export default class MutationBuffer {
     this.mutationCb(payload);
   };
 
+  /**
+   * 处理单次的mutation
+   * @param m 
+   * @returns 
+   */
   private processMutation = (m: mutationRecord) => {
     if (isIgnored(m.target)) {
       return;
@@ -460,6 +465,7 @@ export default class MutationBuffer {
       case 'attributes': {
         const target = m.target as HTMLElement;
         let value = (m.target as HTMLElement).getAttribute(m.attributeName!);
+        // input特殊处理
         if (m.attributeName === 'value') {
           value = maskInputValue({
             maskInputOptions: this.maskInputOptions,
@@ -482,6 +488,7 @@ export default class MutationBuffer {
           };
           this.attributes.push(item);
         }
+        // style处理
         if (m.attributeName === 'style') {
           const old = this.doc.createElement('span');
           if (m.oldValue) {
@@ -631,6 +638,12 @@ function isParentRemoved(
   return isParentRemoved(removes, parentNode, mirror);
 }
 
+/**
+ * n节点是不是和set同祖宗
+ * @param set 
+ * @param n 
+ * @returns 
+ */
 function isAncestorInSet(set: Set<Node>, n: Node): boolean {
   const { parentNode } = n;
   if (!parentNode) {

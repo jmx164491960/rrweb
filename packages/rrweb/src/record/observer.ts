@@ -111,6 +111,7 @@ export function initMutationObserver(
   const observer = new mutationObserverCtor(
     mutationBuffer.processMutations.bind(mutationBuffer),
   );
+  // 原生方法监听
   observer.observe(rootEl, {
     attributes: true,
     attributeOldValue: true,
@@ -815,6 +816,12 @@ function mergeHooks(o: observerParam, hooks: hooksParam) {
   };
 }
 
+/**
+ * 创建dom观察者
+ * @param o 
+ * @param hooks 
+ * @returns 
+ */
 export function initObservers(
   o: observerParam,
   hooks: hooksParam = {},
@@ -824,7 +831,7 @@ export function initObservers(
     return () => {};
   }
 
-  mergeHooks(o, hooks);
+  mergeHooks(o, hooks); // 合并默认钩子和custom钩子
   const mutationObserver = initMutationObserver(o, o.doc);
   const mousemoveHandler = initMoveObserver(o);
   const mouseInteractionHandler = initMouseInteractionObserver(o);
