@@ -109,7 +109,7 @@ export function initMutationObserver(
     >)[angularZoneSymbol];
   }
   const observer = new mutationObserverCtor(
-    mutationBuffer.processMutations.bind(mutationBuffer),
+    mutationBuffer.processMutations.bind(mutationBuffer), // 方法回调this指向MuationBuffer
   );
   // 原生方法监听
   observer.observe(rootEl, {
@@ -179,6 +179,8 @@ function initMoveObserver({
       });
       // it is possible DragEvent is undefined even on devices
       // that support event 'drag'
+
+      // 调用callback
       wrappedCb(
         typeof DragEvent !== 'undefined' && evt instanceof DragEvent
           ? IncrementalSource.Drag
@@ -202,6 +204,11 @@ function initMoveObserver({
   };
 }
 
+/**
+ * 鼠标各种交互
+ * @param param0 
+ * @returns 
+ */
 function initMouseInteractionObserver({
   mouseInteractionCb,
   doc,
@@ -256,6 +263,11 @@ function initMouseInteractionObserver({
   };
 }
 
+/**
+ * 滚动
+ * @param param0 
+ * @returns 
+ */
 export function initScrollObserver({
   scrollCb,
   doc,
@@ -290,6 +302,11 @@ export function initScrollObserver({
   return on('scroll', updatePosition, doc);
 }
 
+/**
+ * resize
+ * @param param0 
+ * @returns 
+ */
 function initViewportResizeObserver({
   viewportResizeCb,
 }: observerParam): listenerHandler {
@@ -319,7 +336,7 @@ function wrapEventWithUserTriggeredFlag(
   return value;
 }
 
-export const INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT'];
+export const INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT']; // 输入控件的标签
 const lastInputValueMap: WeakMap<EventTarget, inputValue> = new WeakMap();
 function initInputObserver({
   inputCb,
@@ -832,8 +849,8 @@ export function initObservers(
   }
 
   mergeHooks(o, hooks); // 合并默认钩子和custom钩子
-  const mutationObserver = initMutationObserver(o, o.doc);
-  const mousemoveHandler = initMoveObserver(o);
+  const mutationObserver = initMutationObserver(o, o.doc); // MutationObserver
+  const mousemoveHandler = initMoveObserver(o); 
   const mouseInteractionHandler = initMouseInteractionObserver(o);
   const scrollHandler = initScrollObserver(o);
   const viewportResizeHandler = initViewportResizeObserver(o);
