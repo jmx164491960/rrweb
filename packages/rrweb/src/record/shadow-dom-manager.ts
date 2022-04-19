@@ -71,6 +71,7 @@ export class ShadowDomManager {
   /**
    * Monkey patch 'attachShadow' of an IFrameElement to observe newly added shadow doms.
    */
+  // tips 主要用于判断shadowRoot下还有没有shadowRoot
   public observeAttachShadow(iframeElement: HTMLIFrameElement) {
     if (iframeElement.contentWindow) {
       const manager = this;

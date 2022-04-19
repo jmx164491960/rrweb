@@ -325,6 +325,7 @@ function record<T = eventWithTime>(
       }),
     );
 
+    // 对document监听
     const observe = (doc: Document) => {
       return initObservers(
         {
@@ -455,7 +456,7 @@ function record<T = eventWithTime>(
 
     iframeManager.addLoadListener((iframeEl) => {
       handlers.push(observe(iframeEl.contentDocument!));
-    });
+    }); // 放到attachIframe队列
 
     const init = () => {
       takeFullSnapshot();
@@ -483,6 +484,7 @@ function record<T = eventWithTime>(
         ),
       );
     }
+    // 关闭方法
     return () => {
       handlers.forEach((h) => h());
     };
