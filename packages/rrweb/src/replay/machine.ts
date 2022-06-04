@@ -279,6 +279,7 @@ export function createPlayerService(
       },
     },
   );
+  // interpret作用是事件管理
   return interpret(playerMachine);
 }
 
