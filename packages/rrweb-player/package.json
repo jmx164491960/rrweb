@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@tsconfig/svelte": "^1.0.0",
+    "puppeteer": "^14.2.0",
     "rrweb": "^1.1.3"
   },
   "scripts": {
