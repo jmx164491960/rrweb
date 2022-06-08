@@ -250,6 +250,8 @@ export class Replayer {
     const firstFullsnapshot = this.service.state.context.events.find(
       (e) => e.type === EventType.FullSnapshot,
     );
+
+    // 回放的顺序
     if (firstMeta) {
       const { width, height } = firstMeta.data as metaEvent['data'];
       setTimeout(() => {
@@ -267,6 +269,7 @@ export class Replayer {
           return;
         }
         this.firstFullSnapshot = firstFullsnapshot;
+        // 还原首屏
         this.rebuildFullSnapshot(
           firstFullsnapshot as fullSnapshotEvent & { timestamp: number },
         );
@@ -275,6 +278,7 @@ export class Replayer {
         );
       }, 1);
     }
+    // 根据是否含有touch事件，改写鼠标样式
     if (this.service.state.context.events.find(indicatesTouchDevice)) {
       this.mouse.classList.add('touch-device');
     }
@@ -427,6 +431,9 @@ export class Replayer {
     this.cache = createCache();
   }
 
+  /**
+   * 加节点
+   */
   private setupDom() {
     this.wrapper = document.createElement('div');
     this.wrapper.classList.add('replayer-wrapper');
@@ -474,6 +481,10 @@ export class Replayer {
     }
   }
 
+  /**
+   * 处理增量
+   * @param events 
+   */
   private applyEventsSynchronously(events: Array<eventWithTime>) {
     for (const event of events) {
       switch (event.type) {
@@ -517,6 +528,16 @@ export class Replayer {
     this.touchActive = null;
   }
 
+  /**
+   * 对每一个event的包装
+   * 扩展plugin
+   * 播放器
+   * 结束的判断
+   * 
+   * @param event 
+   * @param isSync 
+   * @returns 
+   */
   private getCastFn(event: eventWithTime, isSync = false) {
     let castFn: undefined | (() => void);
     switch (event.type) {
@@ -682,10 +703,14 @@ export class Replayer {
       this.waitForStylesheetLoad();
     }
     if (this.config.UNSAFE_replayCanvas) {
+      // 预加载图片
       this.preloadAllImages();
     }
   }
 
+  /**
+   *  还原style节点
+   */
   private insertStyleRules(
     documentElement: HTMLElement,
     head: HTMLHeadElement,
@@ -789,6 +814,7 @@ export class Replayer {
             css.addEventListener('load', () => {
               unloadSheets.delete(css);
               // all loaded and timer not released yet
+              // 等css资源加载完全，再开始回放
               if (unloadSheets.size === 0 && timer !== -1) {
                 if (beforeLoadState.matches('playing')) {
                   this.play(this.getCurrentTime());
@@ -803,6 +829,7 @@ export class Replayer {
           }
         });
 
+      // css资源加载完全，再开始回放
       if (unloadSheets.size > 0) {
         // find some unload sheets after iterate
         this.service.send({ type: 'PAUSE' });
@@ -894,6 +921,12 @@ export class Replayer {
     }
   }
 
+  /**
+   * 处理增量
+   * @param e 
+   * @param isSync 
+   * @returns 
+   */
   private applyIncremental(
     e: incrementalSnapshotEvent & { timestamp: number; delay?: number },
     isSync: boolean,

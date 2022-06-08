@@ -139,16 +139,19 @@ function buildNode(
     case NodeType.Element:
       const tagName = getTagName(n);
       let node: Element;
+      // svg需要特殊处理
       if (n.isSVG) {
         node = doc.createElementNS('http://www.w3.org/2000/svg', tagName);
       } else {
         node = doc.createElement(tagName);
       }
       for (const name in n.attributes) {
+        // 过滤非自由属性
         if (!n.attributes.hasOwnProperty(name)) {
           continue;
         }
         let value = n.attributes[name];
+        // 过滤特殊属性
         if (tagName === 'option' && name === 'selected' && value === false) {
           // legacy fix (TODO: if `value === false` can be generated for other attrs, should we also omit those other attrs from build?)
           continue;
