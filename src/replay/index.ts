@@ -1201,7 +1201,7 @@ export class Replayer {
         return queue.push(mutation);
       }
 
-      if (mutation.node.rootId && !this.mirror.getNode(mutation.node.rootId)) {
+      if (mutation.node.rootId && (mutation.node.rootId !== mutation.node.id) && !this.mirror.getNode(mutation.node.rootId)) {
         return;
       }
 
